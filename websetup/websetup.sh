@@ -39,7 +39,7 @@ echo
 echo "########################"
 echo "Restarting HTTPD Service"
 echo "########################"
-systemctl restart $SVC
+sudo systemctl restart $SVC
 echo
 
 #Clean Up
