@@ -37,28 +37,20 @@ install_packages() {
 
 # Function to manage the web service (start, enable)
 manage_service() {
-    case $OS in
-        ubuntu|centos|amzn)
-            sudo systemctl start $SVC
-            sudo systemctl enable $SVC
-            ;;
-        *)
-            echo "Unsupported service manager on OS: $OS"
-            exit 1
-            ;;
-    esac
+    sudo systemctl start $SVC
+    sudo systemctl enable $SVC
 }
 
 # Install dependencies
 echo "########################"
-echo "Installing packages. "
+echo "Installing packages."
 echo "########################"
 install_packages
 echo
 
 # Start & Enable Service
 echo "########################"
-echo "Start & Enable HTTPD/Apache2 Service"
+echo "Starting and Enabling HTTPD/Apache2 Service"
 echo "########################"
 manage_service
 echo
@@ -68,12 +60,16 @@ echo "########################"
 echo "Starting Artifact Deployment"
 echo "########################"
 mkdir -p $TEMPDIR
-cd $TEMPDIR
+cd $TEMPDIR || exit 1
 
-echo
-wget $URL > /dev/null
-unzip $ART_NAME.zip > /dev/null
-sudo cp -r $ART_NAME/* /var/www/html/
+# Download and deploy artifact
+if wget $URL -O "$ART_NAME.zip" > /dev/null 2>&1; then
+    unzip "$ART_NAME.zip" > /dev/null 2>&1
+    sudo cp -r $ART_NAME/* /var/www/html/
+else
+    echo "Failed to download the artifact. Exiting..."
+    exit 1
+fi
 echo
 
 # Restart Service
